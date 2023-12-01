@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     name: ${{ matrix.os }}-${{ matrix.python-version }}
-    if: github.repository == 'ARM-DOE/pyart'
+    if: github.repository == 'thomasrockhu-codecov/pyart'
     runs-on: ${{ matrix.os }}-latest
     defaults:
       run:
@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
         os: [macos, ubuntu, windows]
 
     steps:
@@ -38,9 +38,9 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           environment-file: continuous_integration/environment-ci.yml
-          activate-environment: pyart-dev
+          environment-name: pyart-dev
           cache-downloads: true
-          python-version: ${{ matrix.python-version }}
+          create-args: python=${{ matrix.python-version }}
 
       - name: Fetch all history for all tags and branches
         run: |
@@ -60,10 +60,10 @@ jobs:
         id: run_tests
         shell: bash -l {0}
         run: |
-          python -m pytest -v --cov=./ --cov-report=xml
+          python -m pytest -v --cov=./
 
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v4-beta
         with:
           file: ./coverage.xml
           flags: unittests
